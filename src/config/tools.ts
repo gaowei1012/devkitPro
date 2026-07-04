@@ -38,6 +38,7 @@ import {
   FileUp,
   Archive,
   Smartphone,
+  AppWindow,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -413,6 +414,15 @@ export const tools: ToolItem[] = [
     icon: Smartphone,
     category: 'extension',
     keywords: ['splash', 'startup', 'ios', 'android', '启动图', '闪屏'],
+  },
+  {
+    id: 'app-icon-generator',
+    name: '手机 Logo 制作',
+    description: '一键生成 iOS / Android 全尺寸应用图标，支持自适应图标与打包下载',
+    path: '/tools/app-icon-generator',
+    icon: AppWindow,
+    category: 'extension',
+    keywords: ['app icon', 'logo', 'ios', 'android', '图标', '应用图标', 'launcher'],
   },
 ];
 

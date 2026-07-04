@@ -321,6 +321,14 @@ const toolMetaOverrides: Record<string, Omit<RouteMeta, 'path'>> = {
     schemaType: 'tool',
     appName: '手机启动图制作工具',
   },
+  '/tools/app-icon-generator': {
+    title: '手机 Logo 制作 - iOS Android App Icon 生成器',
+    description:
+      '在线生成 iOS 与 Android 全尺寸应用图标，支持 iOS 圆角、Android 自适应图标，一键打包下载 Contents.json 与 ic_launcher.xml。',
+    keywords: 'App Icon, 应用图标, iOS图标, Android图标, Launcher, 自适应图标',
+    schemaType: 'tool',
+    appName: '手机 Logo 制作工具',
+  },
 };
 
 export const homeMeta: RouteMeta = {

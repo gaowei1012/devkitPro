@@ -85,6 +85,7 @@ const navGroups = [
       'Base64文件编解码',
       'GZip压缩解压',
       '手机启动图制作',
+      '手机 Logo 制作',
     ],
   },
 ] as const;
@@ -129,6 +130,7 @@ const toolNameMap: Record<string, string> = {
   Base64文件编解码: 'base64-file',
   GZip压缩解压: 'gzip-tool',
   手机启动图制作: 'splash-generator',
+  '手机 Logo 制作': 'app-icon-generator',
 };
 
 const toolById = new Map(tools.map((t) => [t.id, t]));
