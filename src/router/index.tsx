@@ -14,6 +14,14 @@ const HashCalculator = lazy(() => import('@/pages/tools/HashCalculator'));
 const WordCounter = lazy(() => import('@/pages/tools/WordCounter'));
 const ColorConverter = lazy(() => import('@/pages/tools/ColorConverter'));
 const QrCodeGenerator = lazy(() => import('@/pages/tools/QrCodeGenerator'));
+const JwtParser = lazy(() => import('@/pages/tools/JwtParser'));
+const CodeBeautifier = lazy(() => import('@/pages/tools/CodeBeautifier'));
+const ImageProcessor = lazy(() => import('@/pages/tools/ImageProcessor'));
+const YamlConverter = lazy(() => import('@/pages/tools/YamlConverter'));
+const XmlConverter = lazy(() => import('@/pages/tools/XmlConverter'));
+const NetworkQuery = lazy(() => import('@/pages/tools/NetworkQuery'));
+const ChmodCalculator = lazy(() => import('@/pages/tools/ChmodCalculator'));
+const CssGenerator = lazy(() => import('@/pages/tools/CssGenerator'));
 
 function PageLoader() {
   return (
@@ -113,6 +121,70 @@ export function AppRouter() {
           element={
             <LazyPage>
               <QrCodeGenerator />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/jwt-parser"
+          element={
+            <LazyPage>
+              <JwtParser />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/code-beautifier"
+          element={
+            <LazyPage>
+              <CodeBeautifier />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/image-processor"
+          element={
+            <LazyPage>
+              <ImageProcessor />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/yaml-converter"
+          element={
+            <LazyPage>
+              <YamlConverter />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/xml-converter"
+          element={
+            <LazyPage>
+              <XmlConverter />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/network-query"
+          element={
+            <LazyPage>
+              <NetworkQuery />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/chmod-calculator"
+          element={
+            <LazyPage>
+              <ChmodCalculator />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/css-generator"
+          element={
+            <LazyPage>
+              <CssGenerator />
             </LazyPage>
           }
         />
