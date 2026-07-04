@@ -25,6 +25,10 @@ export class ErrorBoundary extends Component<Props, State> {
     console.error('ErrorBoundary caught:', error, info);
   }
 
+  handleReload = () => {
+    window.location.reload();
+  };
+
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) return this.props.fallback;
@@ -34,18 +38,14 @@ export class ErrorBoundary extends Component<Props, State> {
           <AlertTriangle className="h-10 w-10 text-red-500" />
           <div className="text-center">
             <h2 className="text-lg font-semibold text-red-700 dark:text-red-400">
-              出现了一些问题
+              工具加载异常
             </h2>
             <p className="mt-1 text-sm text-red-600 dark:text-red-300">
-              {this.state.error?.message ?? '未知错误'}
+              {this.state.error?.message ?? '页面渲染时发生未知错误，请尝试重新加载'}
             </p>
           </div>
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={() => this.setState({ hasError: false, error: null })}
-          >
-            重试
+          <button type="button" className="btn-primary" onClick={this.handleReload}>
+            重载
           </button>
         </div>
       );

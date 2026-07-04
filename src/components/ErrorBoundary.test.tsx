@@ -27,9 +27,9 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('出现了一些问题')).toBeInTheDocument();
+    expect(screen.getByText('工具加载异常')).toBeInTheDocument();
     expect(screen.getByText('组件崩溃了')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '重试' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '重载' })).toBeInTheDocument();
 
     consoleSpy.mockRestore();
   });
@@ -48,34 +48,24 @@ describe('ErrorBoundary', () => {
     consoleSpy.mockRestore();
   });
 
-  it('recovers after retry click', async () => {
+  it('reloads page when reload button is clicked', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    let shouldThrow = true;
+    const reloadSpy = vi.fn();
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: { reload: reloadSpy },
+    });
 
-    function MaybeThrow() {
-      if (shouldThrow) throw new Error('临时错误');
-      return <p>恢复成功</p>;
-    }
-
-    const { rerender } = render(
+    render(
       <ErrorBoundary>
-        <MaybeThrow />
+        <ThrowError />
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('临时错误')).toBeInTheDocument();
-
-    shouldThrow = false;
     const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: '重试' }));
+    await user.click(screen.getByRole('button', { name: '重载' }));
 
-    rerender(
-      <ErrorBoundary>
-        <MaybeThrow />
-      </ErrorBoundary>
-    );
-
-    expect(screen.getByText('恢复成功')).toBeInTheDocument();
+    expect(reloadSpy).toHaveBeenCalledOnce();
 
     consoleSpy.mockRestore();
   });

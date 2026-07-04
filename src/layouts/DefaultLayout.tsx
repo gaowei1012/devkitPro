@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import {
@@ -20,6 +20,11 @@ import { useSearchStore } from '@/stores/searchStore';
 import { useNavStore } from '@/stores/navStore';
 import { tools, type ToolItem } from '@/config/tools';
 import { GlobalSearch } from '@/components/GlobalSearch';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { VersionFloat } from '@/components/VersionFloat';
+import { AppFooter } from '@/components/AppFooter';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { preloadToolRoute } from '@/router/preloaders';
 
 const navGroups = [
   {
@@ -148,6 +153,7 @@ function NavToolItem({
       <NavLink
         to={tool.path}
         onClick={onNavigate}
+        onMouseEnter={() => preloadToolRoute(tool.id)}
         title={collapsed ? tool.name : undefined}
         className={({ isActive }) =>
           `group relative flex items-center gap-2 rounded-lg py-2 pl-2.5 pr-2 text-sm transition-colors ${
@@ -357,12 +363,12 @@ export function DefaultLayout() {
           })}
         </nav>
 
-        <div className="hidden shrink-0 border-t border-gray-200 p-2 md:block dark:border-gray-800">
+        <div className="shrink-0 border-t border-gray-200 p-2 dark:border-gray-800">
           <button
             type="button"
             onClick={toggleCollapsed}
             title={collapsed ? '展开侧边栏' : '折叠侧边栏'}
-            className="flex w-full items-center justify-center rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="hidden w-full items-center justify-center rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 md:flex dark:hover:bg-gray-800"
           >
             {collapsed ? (
               <ChevronsRight className="h-4 w-4" />
@@ -413,9 +419,19 @@ export function DefaultLayout() {
           </button>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-          <Outlet />
-        </main>
+        <div className="relative flex flex-1 overflow-hidden">
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingSpinner />}>
+                <Outlet />
+              </Suspense>
+            </ErrorBoundary>
+          </main>
+
+          <VersionFloat />
+        </div>
+
+        <AppFooter />
       </div>
 
       <GlobalSearch />

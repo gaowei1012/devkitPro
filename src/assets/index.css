@@ -12,6 +12,20 @@
   }
 }
 
+@layer utilities {
+  .text-muted-foreground {
+    @apply text-gray-500 dark:text-gray-400;
+  }
+
+  .bg-background {
+    @apply bg-white dark:bg-gray-900;
+  }
+
+  .border-border {
+    @apply border-gray-200 dark:border-gray-800;
+  }
+}
+
 @layer components {
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-gray-900;

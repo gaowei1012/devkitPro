@@ -1,20 +1,22 @@
 import { useState, useMemo } from 'react';
 import { ToolLayout, ToolSection } from '@/components/ToolLayout';
 import { CopyButton } from '@/components/CopyButton';
+import { useDebounce } from '@/hooks/useDebounce';
 import { countWords, countLines, countParagraphs, formatNumber } from '@/utils/format';
 
 export default function WordCounter() {
   const [text, setText] = useState('');
+  const debouncedText = useDebounce(text, 500);
 
   const stats = useMemo(() => {
-    const charsWithSpaces = text.length;
-    const charsWithoutSpaces = text.replace(/\s/g, '').length;
-    const words = countWords(text);
-    const lines = countLines(text);
-    const paragraphs = countParagraphs(text);
+    const charsWithSpaces = debouncedText.length;
+    const charsWithoutSpaces = debouncedText.replace(/\s/g, '').length;
+    const words = countWords(debouncedText);
+    const lines = countLines(debouncedText);
+    const paragraphs = countParagraphs(debouncedText);
 
     return { charsWithSpaces, charsWithoutSpaces, words, lines, paragraphs };
-  }, [text]);
+  }, [debouncedText]);
 
   const statItems = [
     { label: '字符数（含空格）', value: stats.charsWithSpaces },

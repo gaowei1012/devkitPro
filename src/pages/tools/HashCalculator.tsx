@@ -1,34 +1,50 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { Loader2, Upload } from 'lucide-react';
 import { ToolLayout, ToolSection } from '@/components/ToolLayout';
 import { CopyButton } from '@/components/CopyButton';
-import { md5, sha1, sha256, hashFileContent } from '@/utils/crypto';
+import { md5, sha1, sha256 } from '@/utils/crypto';
 import { formatBytes } from '@/utils/format';
 
 const LARGE_FILE_THRESHOLD = 10 * 1024 * 1024;
+
+type FileHashResult = { md5: string; sha1: string; sha256: string };
+
+type WorkerMessage =
+  | { type: 'progress'; loaded: number; total: number }
+  | { type: 'result'; hashes: FileHashResult }
+  | { type: 'error'; message: string };
 
 export default function HashCalculator() {
   const [text, setText] = useState('');
   const [fileName, setFileName] = useState('');
   const [fileSize, setFileSize] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [fileHashes, setFileHashes] = useState<{ md5: string; sha1: string; sha256: string } | null>(
-    null
-  );
+  const [progress, setProgress] = useState(0);
+  const [fileHashes, setFileHashes] = useState<FileHashResult | null>(null);
   const [warning, setWarning] = useState('');
+  const workerRef = useRef<Worker | null>(null);
+
+  useEffect(() => {
+    return () => {
+      workerRef.current?.terminate();
+    };
+  }, []);
 
   const textHashes = useMemo(() => {
     if (!text) return null;
     return { md5: md5(text), sha1: sha1(text), sha256: sha256(text) };
   }, [text]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    workerRef.current?.terminate();
 
     setFileName(file.name);
     setFileSize(file.size);
     setFileHashes(null);
+    setProgress(0);
 
     if (file.size > LARGE_FILE_THRESHOLD) {
       setWarning(`文件较大 (${formatBytes(file.size)})，哈希计算可能较慢，请耐心等待。`);
@@ -37,15 +53,44 @@ export default function HashCalculator() {
     }
 
     setLoading(true);
-    try {
-      const buffer = await file.arrayBuffer();
-      const hashes = hashFileContent(buffer);
-      setFileHashes(hashes);
-    } catch (err) {
-      setWarning(err instanceof Error ? err.message : '文件读取失败');
-    } finally {
+
+    const worker = new Worker(new URL('@/workers/hashWorker.ts', import.meta.url), {
+      type: 'module',
+    });
+    workerRef.current = worker;
+
+    worker.onmessage = (event: MessageEvent<WorkerMessage>) => {
+      const data = event.data;
+
+      if (data.type === 'progress') {
+        setProgress(Math.round((data.loaded / data.total) * 100));
+        return;
+      }
+
+      if (data.type === 'result') {
+        setFileHashes(data.hashes);
+        setLoading(false);
+        worker.terminate();
+        workerRef.current = null;
+        return;
+      }
+
+      if (data.type === 'error') {
+        setWarning(data.message);
+        setLoading(false);
+        worker.terminate();
+        workerRef.current = null;
+      }
+    };
+
+    worker.onerror = () => {
+      setWarning('哈希计算失败');
       setLoading(false);
-    }
+      worker.terminate();
+      workerRef.current = null;
+    };
+
+    worker.postMessage({ type: 'compute', file });
   };
 
   const activeHashes = fileHashes ?? textHashes;
@@ -101,9 +146,19 @@ export default function HashCalculator() {
         output={
           <ToolSection title="哈希结果">
             {loading ? (
-              <div className="flex items-center justify-center gap-2 py-12 text-gray-500">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                计算中...
+              <div className="flex flex-col items-center justify-center gap-3 py-12 text-gray-500">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  计算中{progress > 0 ? ` (${progress}%)` : '...'}
+                </div>
+                {progress > 0 && (
+                  <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                    <div
+                      className="h-full rounded-full bg-primary-500 transition-all duration-200"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                )}
               </div>
             ) : activeHashes ? (
               <div className="space-y-4">

@@ -1,283 +1,74 @@
-import { lazy, Suspense, type ReactNode } from 'react';
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { DefaultLayout } from '@/layouts/DefaultLayout';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
 import Home from '@/pages/Home';
 
-const JsonFormatter = lazy(() => import('@/pages/tools/JsonFormatter'));
-const TimestampConverter = lazy(() => import('@/pages/tools/TimestampConverter'));
-const Base64Encoder = lazy(() => import('@/pages/tools/Base64Encoder'));
-const UrlEncoder = lazy(() => import('@/pages/tools/UrlEncoder'));
-const UuidGenerator = lazy(() => import('@/pages/tools/UuidGenerator'));
-const PasswordGenerator = lazy(() => import('@/pages/tools/PasswordGenerator'));
-const HashCalculator = lazy(() => import('@/pages/tools/HashCalculator'));
-const WordCounter = lazy(() => import('@/pages/tools/WordCounter'));
-const ColorConverter = lazy(() => import('@/pages/tools/ColorConverter'));
-const QrCodeGenerator = lazy(() => import('@/pages/tools/QrCodeGenerator'));
-const JwtParser = lazy(() => import('@/pages/tools/JwtParser'));
-const CodeBeautifier = lazy(() => import('@/pages/tools/CodeBeautifier'));
-const ImageProcessor = lazy(() => import('@/pages/tools/ImageProcessor'));
-const YamlConverter = lazy(() => import('@/pages/tools/YamlConverter'));
-const XmlConverter = lazy(() => import('@/pages/tools/XmlConverter'));
-const NetworkQuery = lazy(() => import('@/pages/tools/NetworkQuery'));
-const ChmodCalculator = lazy(() => import('@/pages/tools/ChmodCalculator'));
-const CssGenerator = lazy(() => import('@/pages/tools/CssGenerator'));
-const ApiTester = lazy(() => import('@/pages/tools/ApiTester'));
-const DockerConverter = lazy(() => import('@/pages/tools/DockerConverter'));
-const HtmlToPdf = lazy(() => import('@/pages/tools/HtmlToPdf'));
-const ExcelConverter = lazy(() => import('@/pages/tools/ExcelConverter'));
-const JsonDiff = lazy(() => import('@/pages/tools/JsonDiff'));
-const AiCodeExplainer = lazy(() => import('@/pages/tools/AiCodeExplainer'));
-const AiRegexGenerator = lazy(() => import('@/pages/tools/AiRegexGenerator'));
-const DevTemplates = lazy(() => import('@/pages/tools/DevTemplates'));
-const UnitConverter = lazy(() => import('@/pages/tools/UnitConverter'));
-const PomodoroLorem = lazy(() => import('@/pages/tools/PomodoroLorem'));
-
-function PageLoader() {
-  return (
-    <div className="flex min-h-[200px] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
-    </div>
-  );
-}
-
-function LazyPage({ children }: { children: ReactNode }) {
-  return (
-    <ErrorBoundary>
-      <Suspense fallback={<PageLoader />}>{children}</Suspense>
-    </ErrorBoundary>
-  );
-}
+const JsonFormatter = React.lazy(() => import('@/pages/tools/JsonFormatter'));
+const TimestampConverter = React.lazy(() => import('@/pages/tools/TimestampConverter'));
+const Base64Encoder = React.lazy(() => import('@/pages/tools/Base64Encoder'));
+const UrlEncoder = React.lazy(() => import('@/pages/tools/UrlEncoder'));
+const UuidGenerator = React.lazy(() => import('@/pages/tools/UuidGenerator'));
+const PasswordGenerator = React.lazy(() => import('@/pages/tools/PasswordGenerator'));
+const HashCalculator = React.lazy(() => import('@/pages/tools/HashCalculator'));
+const WordCounter = React.lazy(() => import('@/pages/tools/WordCounter'));
+const ColorConverter = React.lazy(() => import('@/pages/tools/ColorConverter'));
+const QrCodeGenerator = React.lazy(() => import('@/pages/tools/QrCodeGenerator'));
+const JwtParser = React.lazy(() => import('@/pages/tools/JwtParser'));
+const CodeBeautifier = React.lazy(() => import('@/pages/tools/CodeBeautifier'));
+const ImageProcessor = React.lazy(() => import('@/pages/tools/ImageProcessor'));
+const YamlConverter = React.lazy(() => import('@/pages/tools/YamlConverter'));
+const XmlConverter = React.lazy(() => import('@/pages/tools/XmlConverter'));
+const NetworkQuery = React.lazy(() => import('@/pages/tools/NetworkQuery'));
+const ChmodCalculator = React.lazy(() => import('@/pages/tools/ChmodCalculator'));
+const CssGenerator = React.lazy(() => import('@/pages/tools/CssGenerator'));
+const ApiTester = React.lazy(() => import('@/pages/tools/ApiTester'));
+const DockerConverter = React.lazy(() => import('@/pages/tools/DockerConverter'));
+const HtmlToPdf = React.lazy(() => import('@/pages/tools/HtmlToPdf'));
+const ExcelConverter = React.lazy(() => import('@/pages/tools/ExcelConverter'));
+const JsonDiff = React.lazy(() => import('@/pages/tools/JsonDiff'));
+const AiCodeExplainer = React.lazy(() => import('@/pages/tools/AiCodeExplainer'));
+const AiRegexGenerator = React.lazy(() => import('@/pages/tools/AiRegexGenerator'));
+const DevTemplates = React.lazy(() => import('@/pages/tools/DevTemplates'));
+const UnitConverter = React.lazy(() => import('@/pages/tools/UnitConverter'));
+const PomodoroLorem = React.lazy(() => import('@/pages/tools/PomodoroLorem'));
+const Privacy = React.lazy(() => import('@/pages/Privacy'));
+const Terms = React.lazy(() => import('@/pages/Terms'));
 
 export function AppRouter() {
   return (
     <Routes>
       <Route element={<DefaultLayout />}>
         <Route index element={<Home />} />
-        <Route
-          path="tools/json-formatter"
-          element={
-            <LazyPage>
-              <JsonFormatter />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/timestamp"
-          element={
-            <LazyPage>
-              <TimestampConverter />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/base64"
-          element={
-            <LazyPage>
-              <Base64Encoder />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/url-encoder"
-          element={
-            <LazyPage>
-              <UrlEncoder />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/uuid"
-          element={
-            <LazyPage>
-              <UuidGenerator />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/password"
-          element={
-            <LazyPage>
-              <PasswordGenerator />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/hash"
-          element={
-            <LazyPage>
-              <HashCalculator />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/word-counter"
-          element={
-            <LazyPage>
-              <WordCounter />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/color"
-          element={
-            <LazyPage>
-              <ColorConverter />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/qrcode"
-          element={
-            <LazyPage>
-              <QrCodeGenerator />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/jwt-parser"
-          element={
-            <LazyPage>
-              <JwtParser />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/code-beautifier"
-          element={
-            <LazyPage>
-              <CodeBeautifier />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/image-processor"
-          element={
-            <LazyPage>
-              <ImageProcessor />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/yaml-converter"
-          element={
-            <LazyPage>
-              <YamlConverter />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/xml-converter"
-          element={
-            <LazyPage>
-              <XmlConverter />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/network-query"
-          element={
-            <LazyPage>
-              <NetworkQuery />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/chmod-calculator"
-          element={
-            <LazyPage>
-              <ChmodCalculator />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/css-generator"
-          element={
-            <LazyPage>
-              <CssGenerator />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/api-tester"
-          element={
-            <LazyPage>
-              <ApiTester />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/docker-converter"
-          element={
-            <LazyPage>
-              <DockerConverter />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/html-to-pdf"
-          element={
-            <LazyPage>
-              <HtmlToPdf />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/excel-converter"
-          element={
-            <LazyPage>
-              <ExcelConverter />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/json-diff"
-          element={
-            <LazyPage>
-              <JsonDiff />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/ai-code-explainer"
-          element={
-            <LazyPage>
-              <AiCodeExplainer />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/ai-regex-generator"
-          element={
-            <LazyPage>
-              <AiRegexGenerator />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/dev-templates"
-          element={
-            <LazyPage>
-              <DevTemplates />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/unit-converter"
-          element={
-            <LazyPage>
-              <UnitConverter />
-            </LazyPage>
-          }
-        />
-        <Route
-          path="tools/pomodoro-lorem"
-          element={
-            <LazyPage>
-              <PomodoroLorem />
-            </LazyPage>
-          }
-        />
+        <Route path="tools/json-formatter" element={<JsonFormatter />} />
+        <Route path="tools/timestamp" element={<TimestampConverter />} />
+        <Route path="tools/base64" element={<Base64Encoder />} />
+        <Route path="tools/url-encoder" element={<UrlEncoder />} />
+        <Route path="tools/uuid" element={<UuidGenerator />} />
+        <Route path="tools/password" element={<PasswordGenerator />} />
+        <Route path="tools/hash" element={<HashCalculator />} />
+        <Route path="tools/word-counter" element={<WordCounter />} />
+        <Route path="tools/color" element={<ColorConverter />} />
+        <Route path="tools/qrcode" element={<QrCodeGenerator />} />
+        <Route path="tools/jwt-parser" element={<JwtParser />} />
+        <Route path="tools/code-beautifier" element={<CodeBeautifier />} />
+        <Route path="tools/image-processor" element={<ImageProcessor />} />
+        <Route path="tools/yaml-converter" element={<YamlConverter />} />
+        <Route path="tools/xml-converter" element={<XmlConverter />} />
+        <Route path="tools/network-query" element={<NetworkQuery />} />
+        <Route path="tools/chmod-calculator" element={<ChmodCalculator />} />
+        <Route path="tools/css-generator" element={<CssGenerator />} />
+        <Route path="tools/api-tester" element={<ApiTester />} />
+        <Route path="tools/docker-converter" element={<DockerConverter />} />
+        <Route path="tools/html-to-pdf" element={<HtmlToPdf />} />
+        <Route path="tools/excel-converter" element={<ExcelConverter />} />
+        <Route path="tools/json-diff" element={<JsonDiff />} />
+        <Route path="tools/ai-code-explainer" element={<AiCodeExplainer />} />
+        <Route path="tools/ai-regex-generator" element={<AiRegexGenerator />} />
+        <Route path="tools/dev-templates" element={<DevTemplates />} />
+        <Route path="tools/unit-converter" element={<UnitConverter />} />
+        <Route path="tools/pomodoro-lorem" element={<PomodoroLorem />} />
+        <Route path="privacy" element={<Privacy />} />
+        <Route path="terms" element={<Terms />} />
       </Route>
     </Routes>
   );
