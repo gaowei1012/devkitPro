@@ -22,6 +22,16 @@ const XmlConverter = lazy(() => import('@/pages/tools/XmlConverter'));
 const NetworkQuery = lazy(() => import('@/pages/tools/NetworkQuery'));
 const ChmodCalculator = lazy(() => import('@/pages/tools/ChmodCalculator'));
 const CssGenerator = lazy(() => import('@/pages/tools/CssGenerator'));
+const ApiTester = lazy(() => import('@/pages/tools/ApiTester'));
+const DockerConverter = lazy(() => import('@/pages/tools/DockerConverter'));
+const HtmlToPdf = lazy(() => import('@/pages/tools/HtmlToPdf'));
+const ExcelConverter = lazy(() => import('@/pages/tools/ExcelConverter'));
+const JsonDiff = lazy(() => import('@/pages/tools/JsonDiff'));
+const AiCodeExplainer = lazy(() => import('@/pages/tools/AiCodeExplainer'));
+const AiRegexGenerator = lazy(() => import('@/pages/tools/AiRegexGenerator'));
+const DevTemplates = lazy(() => import('@/pages/tools/DevTemplates'));
+const UnitConverter = lazy(() => import('@/pages/tools/UnitConverter'));
+const PomodoroLorem = lazy(() => import('@/pages/tools/PomodoroLorem'));
 
 function PageLoader() {
   return (
@@ -185,6 +195,86 @@ export function AppRouter() {
           element={
             <LazyPage>
               <CssGenerator />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/api-tester"
+          element={
+            <LazyPage>
+              <ApiTester />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/docker-converter"
+          element={
+            <LazyPage>
+              <DockerConverter />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/html-to-pdf"
+          element={
+            <LazyPage>
+              <HtmlToPdf />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/excel-converter"
+          element={
+            <LazyPage>
+              <ExcelConverter />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/json-diff"
+          element={
+            <LazyPage>
+              <JsonDiff />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/ai-code-explainer"
+          element={
+            <LazyPage>
+              <AiCodeExplainer />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/ai-regex-generator"
+          element={
+            <LazyPage>
+              <AiRegexGenerator />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/dev-templates"
+          element={
+            <LazyPage>
+              <DevTemplates />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/unit-converter"
+          element={
+            <LazyPage>
+              <UnitConverter />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="tools/pomodoro-lorem"
+          element={
+            <LazyPage>
+              <PomodoroLorem />
             </LazyPage>
           }
         />
