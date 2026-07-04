@@ -45,6 +45,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      crypto: path.resolve(__dirname, './src/shims/node-crypto.ts'),
     },
   },
   build: {

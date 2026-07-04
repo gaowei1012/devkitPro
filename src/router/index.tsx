@@ -31,6 +31,16 @@ const AiRegexGenerator = React.lazy(() => import('@/pages/tools/AiRegexGenerator
 const DevTemplates = React.lazy(() => import('@/pages/tools/DevTemplates'));
 const UnitConverter = React.lazy(() => import('@/pages/tools/UnitConverter'));
 const PomodoroLorem = React.lazy(() => import('@/pages/tools/PomodoroLorem'));
+const TextDiff = React.lazy(() => import('@/pages/tools/TextDiff'));
+const MarkdownPreview = React.lazy(() => import('@/pages/tools/MarkdownPreview'));
+const SqlFormatter = React.lazy(() => import('@/pages/tools/SqlFormatter'));
+const CurlConverter = React.lazy(() => import('@/pages/tools/CurlConverter'));
+const SubnetCalculator = React.lazy(() => import('@/pages/tools/SubnetCalculator'));
+const PasswordStrength = React.lazy(() => import('@/pages/tools/PasswordStrength'));
+const JsonSchema = React.lazy(() => import('@/pages/tools/JsonSchema'));
+const NamingConverter = React.lazy(() => import('@/pages/tools/NamingConverter'));
+const Base64File = React.lazy(() => import('@/pages/tools/Base64File'));
+const GzipTool = React.lazy(() => import('@/pages/tools/GzipTool'));
 const Privacy = React.lazy(() => import('@/pages/Privacy'));
 const Terms = React.lazy(() => import('@/pages/Terms'));
 
@@ -67,6 +77,16 @@ export function AppRouter() {
         <Route path="tools/dev-templates" element={<DevTemplates />} />
         <Route path="tools/unit-converter" element={<UnitConverter />} />
         <Route path="tools/pomodoro-lorem" element={<PomodoroLorem />} />
+        <Route path="tools/text-diff" element={<TextDiff />} />
+        <Route path="tools/markdown-preview" element={<MarkdownPreview />} />
+        <Route path="tools/sql-formatter" element={<SqlFormatter />} />
+        <Route path="tools/curl-converter" element={<CurlConverter />} />
+        <Route path="tools/subnet-calculator" element={<SubnetCalculator />} />
+        <Route path="tools/password-strength" element={<PasswordStrength />} />
+        <Route path="tools/json-schema" element={<JsonSchema />} />
+        <Route path="tools/naming-converter" element={<NamingConverter />} />
+        <Route path="tools/base64-file" element={<Base64File />} />
+        <Route path="tools/gzip-tool" element={<GzipTool />} />
         <Route path="privacy" element={<Privacy />} />
         <Route path="terms" element={<Terms />} />
       </Route>

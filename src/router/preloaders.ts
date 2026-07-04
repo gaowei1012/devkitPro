@@ -28,6 +28,16 @@ export const routePreloaders: Record<string, () => Promise<unknown>> = {
   'dev-templates': () => import('@/pages/tools/DevTemplates'),
   'unit-converter': () => import('@/pages/tools/UnitConverter'),
   'pomodoro-lorem': () => import('@/pages/tools/PomodoroLorem'),
+  'text-diff': () => import('@/pages/tools/TextDiff'),
+  'markdown-preview': () => import('@/pages/tools/MarkdownPreview'),
+  'sql-formatter': () => import('@/pages/tools/SqlFormatter'),
+  'curl-converter': () => import('@/pages/tools/CurlConverter'),
+  'subnet-calculator': () => import('@/pages/tools/SubnetCalculator'),
+  'password-strength': () => import('@/pages/tools/PasswordStrength'),
+  'json-schema': () => import('@/pages/tools/JsonSchema'),
+  'naming-converter': () => import('@/pages/tools/NamingConverter'),
+  'base64-file': () => import('@/pages/tools/Base64File'),
+  'gzip-tool': () => import('@/pages/tools/GzipTool'),
 };
 
 export function preloadToolRoute(toolId: string) {

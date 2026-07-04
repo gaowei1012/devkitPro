@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { tools, getToolsByCategory, searchTools } from './tools';
 
 describe('tools config', () => {
-  it('registers all 28 tools', () => {
-    expect(tools).toHaveLength(28);
+  it('registers all 34 tools', () => {
+    expect(tools).toHaveLength(34);
   });
 
   it('assigns unique ids and paths', () => {

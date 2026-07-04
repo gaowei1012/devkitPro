@@ -56,3 +56,24 @@ declare module 'react-json-view' {
   const ReactJson: ComponentType<ReactJsonViewProps>;
   export default ReactJson;
 }
+
+declare module 'zxcvbn' {
+  interface ZxcvbnFeedback {
+    warning: string;
+    suggestions: string[];
+  }
+
+  interface ZxcvbnCrackTimesDisplay {
+    offline_slow_hashing_1e4_per_second: string;
+    [key: string]: string;
+  }
+
+  interface ZxcvbnResult {
+    score: 0 | 1 | 2 | 3 | 4;
+    feedback: ZxcvbnFeedback;
+    crack_times_display: ZxcvbnCrackTimesDisplay;
+  }
+
+  function zxcvbn(password: string): ZxcvbnResult;
+  export default zxcvbn;
+}

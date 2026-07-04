@@ -67,6 +67,22 @@ const navGroups = [
     label: '🤖 AI与杂项',
     items: ['AI代码解释', 'AI正则生成', '开发模板', '单位换算', '番茄钟&Lorem'],
   },
+  {
+    id: 'extension',
+    label: '🧩 扩展工具',
+    items: [
+      '文本差异对比',
+      'Markdown预览',
+      'SQL格式化',
+      'cURL转换器',
+      'IP子网计算',
+      '密码强度检测',
+      'JSON Schema',
+      '命名风格转换',
+      'Base64文件编解码',
+      'GZip压缩解压',
+    ],
+  },
 ] as const;
 
 const toolNameMap: Record<string, string> = {
@@ -98,6 +114,16 @@ const toolNameMap: Record<string, string> = {
   开发模板: 'dev-templates',
   单位换算: 'unit-converter',
   '番茄钟&Lorem': 'pomodoro-lorem',
+  文本差异对比: 'text-diff',
+  'Markdown预览': 'markdown-preview',
+  SQL格式化: 'sql-formatter',
+  cURL转换器: 'curl-converter',
+  IP子网计算: 'subnet-calculator',
+  密码强度检测: 'password-strength',
+  'JSON Schema': 'json-schema',
+  命名风格转换: 'naming-converter',
+  Base64文件编解码: 'base64-file',
+  GZip压缩解压: 'gzip-tool',
 };
 
 const toolById = new Map(tools.map((t) => [t.id, t]));
