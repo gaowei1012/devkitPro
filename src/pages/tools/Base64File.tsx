@@ -316,6 +316,9 @@ export default function Base64File() {
                       src={previewUrl}
                       alt="预览"
                       className="max-h-64 max-w-full rounded-lg border border-gray-200 object-contain dark:border-gray-700"
+                      width={256}
+                      height={256}
+                      loading="lazy"
                     />
                   </div>
                 )}
@@ -488,6 +491,9 @@ export default function Base64File() {
                       src={decodedUrl}
                       alt="解码预览"
                       className="max-h-64 max-w-full rounded-lg border border-gray-200 object-contain dark:border-gray-700"
+                      width={256}
+                      height={256}
+                      loading="lazy"
                     />
                   </div>
                 ) : (

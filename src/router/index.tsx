@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { DefaultLayout } from '@/layouts/DefaultLayout';
 import Home from '@/pages/Home';
+import { appRoutes } from '@/config/seoMeta';
 
 const JsonFormatter = React.lazy(() => import('@/pages/tools/JsonFormatter'));
 const TimestampConverter = React.lazy(() => import('@/pages/tools/TimestampConverter'));
@@ -44,51 +45,73 @@ const GzipTool = React.lazy(() => import('@/pages/tools/GzipTool'));
 const Privacy = React.lazy(() => import('@/pages/Privacy'));
 const Terms = React.lazy(() => import('@/pages/Terms'));
 
+/** SEO meta keyed by path — see @/config/seoMeta for title, description, keywords */
+export { appRoutes };
+
+const routeElements: Record<string, React.ReactNode> = {
+  '/': <Home />,
+  '/tools/json-formatter': <JsonFormatter />,
+  '/tools/timestamp': <TimestampConverter />,
+  '/tools/base64': <Base64Encoder />,
+  '/tools/url-encoder': <UrlEncoder />,
+  '/tools/uuid': <UuidGenerator />,
+  '/tools/password': <PasswordGenerator />,
+  '/tools/hash': <HashCalculator />,
+  '/tools/word-counter': <WordCounter />,
+  '/tools/color': <ColorConverter />,
+  '/tools/qrcode': <QrCodeGenerator />,
+  '/tools/jwt-parser': <JwtParser />,
+  '/tools/code-beautifier': <CodeBeautifier />,
+  '/tools/image-processor': <ImageProcessor />,
+  '/tools/yaml-converter': <YamlConverter />,
+  '/tools/xml-converter': <XmlConverter />,
+  '/tools/network-query': <NetworkQuery />,
+  '/tools/chmod-calculator': <ChmodCalculator />,
+  '/tools/css-generator': <CssGenerator />,
+  '/tools/api-tester': <ApiTester />,
+  '/tools/docker-converter': <DockerConverter />,
+  '/tools/html-to-pdf': <HtmlToPdf />,
+  '/tools/excel-converter': <ExcelConverter />,
+  '/tools/json-diff': <JsonDiff />,
+  '/tools/ai-code-explainer': <AiCodeExplainer />,
+  '/tools/ai-regex-generator': <AiRegexGenerator />,
+  '/tools/dev-templates': <DevTemplates />,
+  '/tools/unit-converter': <UnitConverter />,
+  '/tools/pomodoro-lorem': <PomodoroLorem />,
+  '/tools/text-diff': <TextDiff />,
+  '/tools/markdown-preview': <MarkdownPreview />,
+  '/tools/sql-formatter': <SqlFormatter />,
+  '/tools/curl-converter': <CurlConverter />,
+  '/tools/subnet-calculator': <SubnetCalculator />,
+  '/tools/password-strength': <PasswordStrength />,
+  '/tools/json-schema': <JsonSchema />,
+  '/tools/naming-converter': <NamingConverter />,
+  '/tools/base64-file': <Base64File />,
+  '/tools/gzip-tool': <GzipTool />,
+  '/privacy': <Privacy />,
+  '/terms': <Terms />,
+};
+
 export function AppRouter() {
   return (
     <Routes>
       <Route element={<DefaultLayout />}>
-        <Route index element={<Home />} />
-        <Route path="tools/json-formatter" element={<JsonFormatter />} />
-        <Route path="tools/timestamp" element={<TimestampConverter />} />
-        <Route path="tools/base64" element={<Base64Encoder />} />
-        <Route path="tools/url-encoder" element={<UrlEncoder />} />
-        <Route path="tools/uuid" element={<UuidGenerator />} />
-        <Route path="tools/password" element={<PasswordGenerator />} />
-        <Route path="tools/hash" element={<HashCalculator />} />
-        <Route path="tools/word-counter" element={<WordCounter />} />
-        <Route path="tools/color" element={<ColorConverter />} />
-        <Route path="tools/qrcode" element={<QrCodeGenerator />} />
-        <Route path="tools/jwt-parser" element={<JwtParser />} />
-        <Route path="tools/code-beautifier" element={<CodeBeautifier />} />
-        <Route path="tools/image-processor" element={<ImageProcessor />} />
-        <Route path="tools/yaml-converter" element={<YamlConverter />} />
-        <Route path="tools/xml-converter" element={<XmlConverter />} />
-        <Route path="tools/network-query" element={<NetworkQuery />} />
-        <Route path="tools/chmod-calculator" element={<ChmodCalculator />} />
-        <Route path="tools/css-generator" element={<CssGenerator />} />
-        <Route path="tools/api-tester" element={<ApiTester />} />
-        <Route path="tools/docker-converter" element={<DockerConverter />} />
-        <Route path="tools/html-to-pdf" element={<HtmlToPdf />} />
-        <Route path="tools/excel-converter" element={<ExcelConverter />} />
-        <Route path="tools/json-diff" element={<JsonDiff />} />
-        <Route path="tools/ai-code-explainer" element={<AiCodeExplainer />} />
-        <Route path="tools/ai-regex-generator" element={<AiRegexGenerator />} />
-        <Route path="tools/dev-templates" element={<DevTemplates />} />
-        <Route path="tools/unit-converter" element={<UnitConverter />} />
-        <Route path="tools/pomodoro-lorem" element={<PomodoroLorem />} />
-        <Route path="tools/text-diff" element={<TextDiff />} />
-        <Route path="tools/markdown-preview" element={<MarkdownPreview />} />
-        <Route path="tools/sql-formatter" element={<SqlFormatter />} />
-        <Route path="tools/curl-converter" element={<CurlConverter />} />
-        <Route path="tools/subnet-calculator" element={<SubnetCalculator />} />
-        <Route path="tools/password-strength" element={<PasswordStrength />} />
-        <Route path="tools/json-schema" element={<JsonSchema />} />
-        <Route path="tools/naming-converter" element={<NamingConverter />} />
-        <Route path="tools/base64-file" element={<Base64File />} />
-        <Route path="tools/gzip-tool" element={<GzipTool />} />
-        <Route path="privacy" element={<Privacy />} />
-        <Route path="terms" element={<Terms />} />
+        {appRoutes.map(({ path }) => {
+          const element = routeElements[path];
+          if (!element) return null;
+
+          if (path === '/') {
+            return <Route key={path} index element={element} />;
+          }
+
+          return (
+            <Route
+              key={path}
+              path={path.replace(/^\//, '')}
+              element={element}
+            />
+          );
+        })}
       </Route>
     </Routes>
   );

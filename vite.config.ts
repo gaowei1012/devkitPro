@@ -4,6 +4,9 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
 import viteCompression from 'vite-plugin-compression';
+import sitemap from 'vite-plugin-sitemap';
+import { robots } from 'vite-plugin-robots';
+import { sitemapRoutes, SITE_URL } from './src/config/seoMeta';
 
 const isAnalyze = process.env.ANALYZE === 'true';
 
@@ -31,6 +34,15 @@ export default defineConfig({
       ext: '.br',
       threshold: 1024,
     }),
+    sitemap({
+      hostname: SITE_URL,
+      dynamicRoutes: sitemapRoutes.filter((route) => route !== '/'),
+      changefreq: 'weekly',
+      priority: 0.8,
+      lastmod: new Date(),
+      generateRobotsTxt: false,
+    }),
+    robots({ enableDebug: false }),
     ...(isAnalyze
       ? [
           visualizer({

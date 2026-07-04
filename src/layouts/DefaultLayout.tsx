@@ -19,11 +19,14 @@ import { useThemeStore } from '@/stores/themeStore';
 import { useSearchStore } from '@/stores/searchStore';
 import { useNavStore } from '@/stores/navStore';
 import { tools, type ToolItem } from '@/config/tools';
+import { getRouteMeta } from '@/config/seoMeta';
 import { GlobalSearch } from '@/components/GlobalSearch';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { VersionFloat } from '@/components/VersionFloat';
 import { AppFooter } from '@/components/AppFooter';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { SEO } from '@/components/SEO';
+import { Breadcrumb } from '@/components/Breadcrumb';
 import { preloadToolRoute } from '@/router/preloaders';
 
 const navGroups = [
@@ -236,6 +239,7 @@ export function DefaultLayout() {
 
   const location = useLocation();
   const sidebarWidth = collapsed ? 'w-[60px]' : 'w-60';
+  const routeMeta = getRouteMeta(location.pathname);
 
   const favoriteTools = favorites
     .map((path) => tools.find((t) => t.path === path))
@@ -447,6 +451,8 @@ export function DefaultLayout() {
 
         <div className="relative flex flex-1 overflow-hidden">
           <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+            <SEO {...routeMeta} path={location.pathname} />
+            <Breadcrumb />
             <ErrorBoundary>
               <Suspense fallback={<LoadingSpinner />}>
                 <Outlet />

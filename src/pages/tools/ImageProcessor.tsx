@@ -309,6 +309,9 @@ export default function ImageProcessor() {
                   src={processedUrl}
                   alt="处理后预览"
                   className="max-h-48 w-full rounded-lg object-contain transition-opacity group-hover:opacity-90"
+                  width={320}
+                  height={192}
+                  loading="lazy"
                 />
                 <span className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-black/0 transition-colors group-hover:bg-black/20">
                   <span className="flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
@@ -380,6 +383,9 @@ export default function ImageProcessor() {
                   src={processedUrl ?? ''}
                   alt="全屏预览"
                   className="max-h-[calc(100vh-4rem)] max-w-[calc(100vw-2rem)] object-contain"
+                  width={800}
+                  height={600}
+                  loading="lazy"
                 />
                 {processedInfo && (
                   <p className="mt-4 text-sm text-white/70">

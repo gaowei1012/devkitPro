@@ -102,6 +102,7 @@ export default function QrCodeGenerator() {
                     className="rounded-lg border border-gray-200 dark:border-gray-700"
                     width={256}
                     height={256}
+                    loading="lazy"
                   />
                   <canvas ref={canvasRef} className="hidden" />
                 </>
