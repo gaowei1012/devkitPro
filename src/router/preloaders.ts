@@ -38,6 +38,7 @@ export const routePreloaders: Record<string, () => Promise<unknown>> = {
   'naming-converter': () => import('@/pages/tools/NamingConverter'),
   'base64-file': () => import('@/pages/tools/Base64File'),
   'gzip-tool': () => import('@/pages/tools/GzipTool'),
+  'splash-generator': () => import('@/pages/tools/SplashGenerator'),
 };
 
 export function preloadToolRoute(toolId: string) {

@@ -313,6 +313,14 @@ const toolMetaOverrides: Record<string, Omit<RouteMeta, 'path'>> = {
     schemaType: 'tool',
     appName: 'GZip 压缩解压工具',
   },
+  '/tools/splash-generator': {
+    title: '手机启动图制作 - iOS Android Splash Screen 生成器',
+    description:
+      '在线生成 iOS 与 Android 各尺寸启动图，支持竖屏横屏、背景色与缩放模式配置，一键打包下载。',
+    keywords: '启动图, Splash Screen, iOS启动图, Android启动图, 闪屏',
+    schemaType: 'tool',
+    appName: '手机启动图制作工具',
+  },
 };
 
 export const homeMeta: RouteMeta = {

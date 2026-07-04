@@ -37,6 +37,7 @@ import {
   CaseSensitive,
   FileUp,
   Archive,
+  Smartphone,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -403,6 +404,15 @@ export const tools: ToolItem[] = [
     icon: Archive,
     category: 'extension',
     keywords: ['gzip', 'compress', 'decompress', '压缩', '解压', 'base64'],
+  },
+  {
+    id: 'splash-generator',
+    name: '手机启动图制作',
+    description: '一键生成 iOS / Android 各尺寸启动图，支持批量下载',
+    path: '/tools/splash-generator',
+    icon: Smartphone,
+    category: 'extension',
+    keywords: ['splash', 'startup', 'ios', 'android', '启动图', '闪屏'],
   },
 ];
 

@@ -42,6 +42,7 @@ const JsonSchema = React.lazy(() => import('@/pages/tools/JsonSchema'));
 const NamingConverter = React.lazy(() => import('@/pages/tools/NamingConverter'));
 const Base64File = React.lazy(() => import('@/pages/tools/Base64File'));
 const GzipTool = React.lazy(() => import('@/pages/tools/GzipTool'));
+const SplashGenerator = React.lazy(() => import('@/pages/tools/SplashGenerator'));
 const Privacy = React.lazy(() => import('@/pages/Privacy'));
 const Terms = React.lazy(() => import('@/pages/Terms'));
 
@@ -88,6 +89,7 @@ const routeElements: Record<string, React.ReactNode> = {
   '/tools/naming-converter': <NamingConverter />,
   '/tools/base64-file': <Base64File />,
   '/tools/gzip-tool': <GzipTool />,
+  '/tools/splash-generator': <SplashGenerator />,
   '/privacy': <Privacy />,
   '/terms': <Terms />,
 };
