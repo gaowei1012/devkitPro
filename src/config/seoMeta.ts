@@ -308,8 +308,8 @@ const toolMetaOverrides: Record<string, Omit<RouteMeta, 'path'>> = {
   '/tools/gzip-tool': {
     title: 'GZip 压缩解压 - 在线 GZip 编解码工具',
     description:
-      '使用浏览器原生 API 进行 GZip 压缩与解压，支持 Base64 输出，适合数据传输调试。',
-    keywords: 'GZip压缩, GZip解压, 在线压缩, gzip base64',
+      '使用浏览器原生 API 进行 GZip 压缩与解压，支持 .gz / .zip 文件及 Base64 格式。',
+    keywords: 'GZip压缩, GZip解压, ZIP解压, 在线压缩, gzip base64',
     schemaType: 'tool',
     appName: 'GZip 压缩解压工具',
   },
@@ -376,6 +376,7 @@ export const sitemapRoutes = appRoutes.map((r) => r.path);
 /** Breadcrumb display names keyed by full path */
 export const breadcrumbNames: Record<string, string> = {
   '/': '首页',
+  '/tools': '工具',
   '/privacy': '隐私政策',
   '/terms': '使用条款',
   ...Object.fromEntries(tools.map((t) => [t.path, t.name])),

@@ -398,7 +398,7 @@ export const tools: ToolItem[] = [
   {
     id: 'gzip-tool',
     name: 'GZip 压缩/解压',
-    description: '使用浏览器原生 API 进行 GZip 压缩与解压',
+    description: '使用浏览器原生 API 进行 GZip 压缩与解压，支持 .zip 解压',
     path: '/tools/gzip-tool',
     icon: Archive,
     category: 'extension',

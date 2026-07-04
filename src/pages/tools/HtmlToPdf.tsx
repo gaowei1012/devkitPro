@@ -39,53 +39,125 @@ const DEFAULT_HTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
+/** Wrap fragment HTML in a full document when needed. */
+function normalizeHtmlDocument(html: string): string {
+  const trimmed = html.trim();
+  if (/<!DOCTYPE|<html[\s>]/i.test(trimmed)) {
+    return trimmed;
+  }
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${trimmed}</body></html>`;
+}
+
+/** Render HTML in a hidden iframe so head styles and body layout apply correctly. */
+function createRenderIframe(html: string): Promise<{ element: HTMLElement; cleanup: () => void }> {
+  return new Promise((resolve, reject) => {
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('aria-hidden', 'true');
+    iframe.style.position = 'fixed';
+    iframe.style.top = '0';
+    iframe.style.left = '0';
+    iframe.style.width = '794px';
+    iframe.style.height = '1123px';
+    iframe.style.opacity = '0';
+    iframe.style.pointerEvents = 'none';
+    iframe.style.border = 'none';
+    iframe.style.zIndex = '-1';
+
+    const cleanup = () => {
+      iframe.remove();
+    };
+
+    iframe.onload = () => {
+      const doc = iframe.contentDocument;
+      const body = doc?.body;
+      if (!doc || !body) {
+        cleanup();
+        reject(new Error('无法创建 HTML 渲染容器'));
+        return;
+      }
+
+      // Give layout/styles a frame to settle before html2canvas captures.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          resolve({ element: body, cleanup });
+        });
+      });
+    };
+
+    iframe.onerror = () => {
+      cleanup();
+      reject(new Error('HTML 渲染失败'));
+    };
+
+    document.body.appendChild(iframe);
+    const doc = iframe.contentDocument;
+    if (!doc) {
+      cleanup();
+      reject(new Error('无法创建 HTML 渲染容器'));
+      return;
+    }
+
+    doc.open();
+    doc.write(normalizeHtmlDocument(html));
+    doc.close();
+  });
+}
+
 export default function HtmlToPdf() {
   const { resolvedTheme } = useThemeStore();
   const [html, setHtml] = useState(DEFAULT_HTML);
   const [loading, setLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState('');
   const [error, setError] = useState('');
-  const previewRef = useRef<HTMLDivElement>(null);
   const pdfBlobRef = useRef<Blob | null>(null);
+  const pdfUrlRef = useRef('');
 
   const generatePdf = useCallback(async () => {
     setLoading(true);
     setError('');
     setPdfUrl('');
 
-    if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+    if (pdfUrlRef.current) {
+      URL.revokeObjectURL(pdfUrlRef.current);
+      pdfUrlRef.current = '';
+    }
+
+    let cleanupRender: (() => void) | undefined;
 
     try {
-      const container = document.createElement('div');
-      container.innerHTML = html;
-      container.style.position = 'absolute';
-      container.style.left = '-9999px';
-      document.body.appendChild(container);
+      const { element, cleanup } = await createRenderIframe(html);
+      cleanupRender = cleanup;
 
       const opt = {
         margin: [10, 10, 10, 10] as number[],
         filename: 'document.pdf',
         image: { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          windowWidth: 794,
+          windowHeight: 1123,
+        },
         jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const },
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] as string[] },
       };
 
-      const worker = html2pdf().set(opt).from(container);
+      const worker = html2pdf().set(opt).from(element);
       const blob = (await worker.outputPdf('blob')) as Blob;
       pdfBlobRef.current = blob;
 
       const url = URL.createObjectURL(blob);
+      pdfUrlRef.current = url;
       setPdfUrl(url);
-
-      document.body.removeChild(container);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'PDF 生成失败';
       setError(msg);
     } finally {
+      cleanupRender?.();
       setLoading(false);
     }
-  }, [html, pdfUrl]);
+  }, [html]);
 
   const downloadPdf = useCallback(() => {
     if (pdfBlobRef.current) {
@@ -153,7 +225,6 @@ export default function HtmlToPdf() {
                 minHeight: 450,
               }}
             />
-            <div ref={previewRef} className="hidden" />
           </ToolSection>
         }
         output={

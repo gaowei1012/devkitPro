@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { DefaultLayout } from '@/layouts/DefaultLayout';
 import Home from '@/pages/Home';
 import { appRoutes } from '@/config/seoMeta';
@@ -96,6 +96,7 @@ export function AppRouter() {
   return (
     <Routes>
       <Route element={<DefaultLayout />}>
+        <Route path="tools" element={<Navigate to="/" replace />} />
         {appRoutes.map(({ path }) => {
           const element = routeElements[path];
           if (!element) return null;

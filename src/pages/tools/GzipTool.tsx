@@ -5,7 +5,9 @@ import {
   Loader2,
   AlertTriangle,
   Archive,
+  File,
 } from 'lucide-react';
+import { unzip } from 'fflate';
 import { ToolSection } from '@/components/ToolLayout';
 import { CopyButton } from '@/components/CopyButton';
 
@@ -15,7 +17,13 @@ const MAX_FILE_SIZE = 100 * 1024 * 1024;
 type Tab = 'compress' | 'decompress';
 type CompressInputMode = 'text' | 'file';
 type DecompressInputMode = 'file' | 'base64';
+type DecompressFormat = 'gzip' | 'zip';
 type Status = 'idle' | 'processing' | 'done' | 'error';
+
+interface ZipEntry {
+  name: string;
+  bytes: Uint8Array;
+}
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -57,6 +65,48 @@ function isLikelyText(bytes: Uint8Array): boolean {
     if (b < 9 || (b > 13 && b < 32 && b !== 27)) nonPrintable++;
   }
   return nonPrintable / sample.length < 0.1;
+}
+
+function detectCompressionFormat(bytes: Uint8Array, filename?: string): DecompressFormat | null {
+  if (bytes.length >= 2 && bytes[0] === 0x1f && bytes[1] === 0x8b) return 'gzip';
+  if (bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4b) return 'zip';
+  const lower = filename?.toLowerCase() ?? '';
+  if (lower.endsWith('.gz')) return 'gzip';
+  if (lower.endsWith('.zip')) return 'zip';
+  return null;
+}
+
+function getEntryFilename(path: string): string {
+  const normalized = path.replace(/\\/g, '/');
+  const parts = normalized.split('/');
+  return parts[parts.length - 1] || path;
+}
+
+async function extractZip(bytes: Uint8Array): Promise<ZipEntry[]> {
+  return new Promise((resolve, reject) => {
+    unzip(bytes, (err, data) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      const entries = Object.entries(data)
+        .filter(([name]) => !name.endsWith('/'))
+        .map(([name, content]) => ({ name, bytes: content }));
+
+      resolve(entries);
+    });
+  });
+}
+
+function downloadBytes(bytes: Uint8Array, filename: string, mimeType?: string) {
+  const blob = new Blob([bytes], { type: mimeType ?? 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 async function streamToUint8Array(
@@ -201,6 +251,8 @@ export default function GzipTool() {
   const [decompressOutput, setDecompressOutput] = useState('');
   const [decompressedBytes, setDecompressedBytes] = useState<Uint8Array | null>(null);
   const [decompressedSize, setDecompressedSize] = useState(0);
+  const [decompressFormat, setDecompressFormat] = useState<DecompressFormat | null>(null);
+  const [zipEntries, setZipEntries] = useState<ZipEntry[]>([]);
   const [isBinaryResult, setIsBinaryResult] = useState(false);
   const [decompressError, setDecompressError] = useState('');
   const [decompressLoading, setDecompressLoading] = useState(false);
@@ -315,13 +367,11 @@ export default function GzipTool() {
   }, [supported, compressMode, textInput, compressFile, resetAbort]);
 
   const handleDecompress = useCallback(async () => {
-    if (!supported) return;
-
     const hasBase64 = decompressMode === 'base64' && base64Input.trim();
     const hasFile = decompressMode === 'file' && decompressFile;
 
     if (!hasBase64 && !hasFile) {
-      setDecompressError('请上传 .gz 文件或粘贴 Base64 字符串');
+      setDecompressError('请上传 .gz / .zip 文件或粘贴 Base64 字符串');
       setStatus('error');
       return;
     }
@@ -331,6 +381,8 @@ export default function GzipTool() {
     setDecompressError('');
     setDecompressOutput('');
     setDecompressedBytes(null);
+    setDecompressFormat(null);
+    setZipEntries([]);
     setIsBinaryResult(false);
     setDecompressProgress(0);
     setStatus('processing');
@@ -354,6 +406,47 @@ export default function GzipTool() {
         inputBytes = await streamToUint8Array(file.stream(), controller.signal);
       }
 
+      const format = detectCompressionFormat(inputBytes, decompressFile?.name);
+      if (!format) {
+        setDecompressError('不支持的压缩格式，请上传 .gz 或 .zip 文件');
+        setStatus('error');
+        return;
+      }
+
+      if (format === 'gzip' && !supported) {
+        setDecompressError('当前浏览器不支持 GZip 解压，请使用 Chrome 80+、Firefox 113+ 或 Safari 16.4+');
+        setStatus('error');
+        return;
+      }
+
+      if (format === 'zip') {
+        const entries = await extractZip(inputBytes);
+        if (entries.length === 0) {
+          setDecompressError('ZIP 文件为空或不包含可解压的文件');
+          setStatus('error');
+          return;
+        }
+
+        setDecompressFormat('zip');
+        setZipEntries(entries);
+        setDecompressedSize(entries.reduce((sum, entry) => sum + entry.bytes.length, 0));
+
+        if (entries.length === 1) {
+          const [entry] = entries;
+          setDecompressedBytes(entry.bytes);
+          const textLike = isLikelyText(entry.bytes);
+          setIsBinaryResult(!textLike);
+          if (textLike) {
+            setDecompressOutput(new TextDecoder('utf-8', { fatal: false }).decode(entry.bytes));
+          }
+        } else {
+          setIsBinaryResult(true);
+        }
+
+        setStatus('done');
+        return;
+      }
+
       const showProgress = compressedSizeForProgress > LARGE_FILE_THRESHOLD;
       const inputStream = new ReadableStream<Uint8Array>({
         start(ctrl) {
@@ -370,6 +463,7 @@ export default function GzipTool() {
       );
 
       const textLike = isLikelyText(result);
+      setDecompressFormat('gzip');
       setDecompressedBytes(result);
       setDecompressedSize(result.length);
       setIsBinaryResult(!textLike);
@@ -381,7 +475,7 @@ export default function GzipTool() {
 
       setStatus('done');
     } catch {
-      setDecompressError('文件不是有效的 GZip 格式');
+      setDecompressError('解压失败，请确认文件为有效的 GZip 或 ZIP 格式');
       setStatus('error');
     } finally {
       setDecompressLoading(false);
@@ -401,14 +495,26 @@ export default function GzipTool() {
 
   const handleDownloadTxt = useCallback(() => {
     if (!decompressedBytes) return;
-    const blob = new Blob([decompressedBytes], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = decompressFile?.name?.replace(/\.gz$/i, '') + '.txt' || 'decompressed.txt';
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [decompressedBytes, decompressFile]);
+
+    let filename = 'decompressed.txt';
+    if (decompressFormat === 'zip' && zipEntries.length === 1) {
+      filename = getEntryFilename(zipEntries[0].name);
+    } else if (decompressFile?.name) {
+      filename = decompressFile.name.replace(/\.(gz|zip)$/i, '') + '.txt';
+    }
+
+    downloadBytes(decompressedBytes, filename, 'text/plain;charset=utf-8');
+  }, [decompressedBytes, decompressFile, decompressFormat, zipEntries]);
+
+  const handleDownloadZipEntry = useCallback((entry: ZipEntry) => {
+    downloadBytes(entry.bytes, getEntryFilename(entry.name));
+  }, []);
+
+  const handleDownloadAllZipEntries = useCallback(() => {
+    zipEntries.forEach((entry) => {
+      downloadBytes(entry.bytes, getEntryFilename(entry.name));
+    });
+  }, [zipEntries]);
 
   const disabled = !supported;
 
@@ -417,7 +523,7 @@ export default function GzipTool() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">GZip 压缩/解压</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          使用浏览器原生 API 进行 GZip 压缩与解压，支持文本、文件及 Base64 格式
+          使用浏览器原生 API 进行 GZip 压缩与解压，支持 .gz / .zip 文件、文本及 Base64 格式
         </p>
       </div>
 
@@ -425,7 +531,7 @@ export default function GzipTool() {
         <div className="mb-6 flex items-start gap-3 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 dark:border-yellow-800 dark:bg-yellow-900/30">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-yellow-600 dark:text-yellow-400" />
           <p className="text-sm text-yellow-800 dark:text-yellow-200">
-            当前浏览器不支持 GZip 压缩/解压，请使用 Chrome 80+、Firefox 113+ 或 Safari 16.4+。
+            当前浏览器不支持 GZip 压缩/解压，请使用 Chrome 80+、Firefox 113+ 或 Safari 16.4+。ZIP 解压仍可使用。
           </p>
         </div>
       )}
@@ -704,7 +810,7 @@ export default function GzipTool() {
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700'
                 }`}
               >
-                .gz 文件
+                .gz / .zip 文件
               </button>
             </div>
 
@@ -716,9 +822,8 @@ export default function GzipTool() {
                   setDecompressError('');
                   setStatus('idle');
                 }}
-                disabled={disabled}
                 className="input-field min-h-[200px] resize-y font-mono text-xs"
-                placeholder="粘贴 GZip 压缩后的 Base64 字符串..."
+                placeholder="粘贴 GZip / ZIP 压缩后的 Base64 字符串..."
               />
             ) : (
               <div
@@ -736,24 +841,21 @@ export default function GzipTool() {
                   const f = e.dataTransfer.files[0];
                   if (f) handleDecompressFileSelect(f);
                 }}
-                onClick={() => !disabled && decompressFileRef.current?.click()}
-                onKeyDown={(e) => e.key === 'Enter' && !disabled && decompressFileRef.current?.click()}
+                onClick={() => decompressFileRef.current?.click()}
+                onKeyDown={(e) => e.key === 'Enter' && decompressFileRef.current?.click()}
                 className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-colors ${
-                  disabled ? 'cursor-not-allowed opacity-50' : ''
-                } ${
                   decompressDragOver
                     ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/20'
                     : 'border-gray-300 hover:border-primary-400 dark:border-gray-600'
                 }`}
               >
                 <Upload className="mb-3 h-10 w-10 text-gray-400" />
-                <p className="text-sm text-gray-600 dark:text-gray-400">拖拽或点击上传 .gz 文件</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">拖拽或点击上传 .gz / .zip 文件</p>
                 <input
                   ref={decompressFileRef}
                   type="file"
-                  accept=".gz,application/gzip"
+                  accept=".gz,.zip,application/gzip,application/zip,application/x-zip-compressed"
                   className="hidden"
-                  disabled={disabled}
                   onChange={(e) => {
                     const f = e.target.files?.[0];
                     if (f) handleDecompressFileSelect(f);
@@ -794,8 +896,7 @@ export default function GzipTool() {
               type="button"
               className="btn-primary mt-4 w-full sm:w-auto"
               onClick={() => void handleDecompress()}
-              disabled={disabled || decompressLoading}
-              title={disabled ? '浏览器不支持' : undefined}
+              disabled={decompressLoading}
             >
               {decompressLoading ? (
                 <>
@@ -811,18 +912,73 @@ export default function GzipTool() {
           <ToolSection
             title="解压结果"
             actions={
-              decompressedBytes ? (
+              decompressFormat === 'zip' && zipEntries.length > 0 ? (
+                <button type="button" className="btn-secondary text-xs" onClick={handleDownloadAllZipEntries}>
+                  <FileDown className="h-3.5 w-3.5" />
+                  下载全部 ({zipEntries.length})
+                </button>
+              ) : decompressedBytes ? (
                 <div className="flex flex-wrap gap-2">
                   {!isBinaryResult && <CopyButton text={decompressOutput} />}
                   <button type="button" className="btn-secondary text-xs" onClick={handleDownloadTxt}>
                     <FileDown className="h-3.5 w-3.5" />
-                    下载为 .txt
+                    {decompressFormat === 'zip' ? '下载文件' : '下载为 .txt'}
                   </button>
                 </div>
               ) : undefined
             }
           >
-            {decompressedBytes ? (
+            {decompressFormat === 'zip' && zipEntries.length > 0 ? (
+              <div className="space-y-4">
+                <div className="rounded-lg bg-gray-50 p-3 text-xs dark:bg-gray-800">
+                  <p className="text-gray-500 dark:text-gray-400">
+                    共解压
+                    <span className="font-mono font-medium text-gray-700 dark:text-gray-300">
+                      {' '}
+                      {zipEntries.length}{' '}
+                    </span>
+                    个文件，总大小
+                    <span className="font-mono font-medium text-green-600 dark:text-green-400">
+                      {' '}
+                      {formatFileSize(decompressedSize)}
+                    </span>
+                  </p>
+                </div>
+
+                <ul className="max-h-72 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-2 dark:border-gray-700">
+                  {zipEntries.map((entry) => (
+                    <li
+                      key={entry.name}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                    >
+                      <File className="h-4 w-4 shrink-0 text-gray-400" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-gray-800 dark:text-gray-200">
+                          {entry.name}
+                        </p>
+                        <p className="text-xs text-gray-500">{formatFileSize(entry.bytes.length)}</p>
+                      </div>
+                      <button
+                        type="button"
+                        className="btn-secondary shrink-0 text-xs"
+                        onClick={() => handleDownloadZipEntry(entry)}
+                      >
+                        <FileDown className="h-3.5 w-3.5" />
+                        下载
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+
+                {zipEntries.length === 1 && !isBinaryResult && (
+                  <textarea
+                    readOnly
+                    value={decompressOutput}
+                    className="input-field min-h-[160px] resize-y font-mono text-sm"
+                  />
+                )}
+              </div>
+            ) : decompressedBytes ? (
               <div className="space-y-4">
                 <div className="rounded-lg bg-gray-50 p-3 text-xs dark:bg-gray-800">
                   <p className="text-gray-500 dark:text-gray-400">
