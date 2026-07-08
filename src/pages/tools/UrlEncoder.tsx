@@ -51,7 +51,7 @@ export default function UrlEncoder() {
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              className="input-field min-h-[200px] resize-y font-mono"
+              className="input-field block min-h-[280px] max-h-[80vh] resize-y overflow-auto font-mono text-sm leading-relaxed"
               placeholder={decodeMode ? '输入 URL 编码字符串...' : '输入要编码的文本...'}
             />
           </ToolSection>
@@ -64,7 +64,7 @@ export default function UrlEncoder() {
             <textarea
               value={output}
               readOnly
-              className="input-field min-h-[200px] resize-y font-mono bg-gray-50 dark:bg-gray-800"
+              className="input-field block min-h-[280px] max-h-[80vh] resize-y overflow-auto font-mono text-sm leading-relaxed bg-gray-50 dark:bg-gray-800"
               placeholder="结果将显示在这里..."
             />
           </ToolSection>
