@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ToastContainer } from '@/components/Toast';
 import { AppRouter } from '@/router';
 import { GLOBAL_SEO } from '@/types/seo';
 
@@ -17,6 +18,7 @@ export default function App() {
       </Helmet>
       <ErrorBoundary>
         <AppRouter />
+        <ToastContainer />
       </ErrorBoundary>
     </>
   );

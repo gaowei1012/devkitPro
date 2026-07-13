@@ -1,5 +1,6 @@
 import { Copy, Check } from 'lucide-react';
 import { useClipboard } from '@/hooks/useClipboard';
+import { toast } from '@/stores/toastStore';
 
 interface CopyButtonProps {
   text: string;
@@ -10,8 +11,15 @@ interface CopyButtonProps {
 export function CopyButton({ text, className = '', label = '复制' }: CopyButtonProps) {
   const { copied, copy } = useClipboard();
 
-  const handleClick = () => {
-    if (text) void copy(text);
+  const handleClick = async () => {
+    if (!text) return;
+
+    const ok = await copy(text);
+    if (ok) {
+      toast.success('复制成功');
+    } else {
+      toast.error('复制失败');
+    }
   };
 
   return (

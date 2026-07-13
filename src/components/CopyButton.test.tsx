@@ -1,8 +1,24 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { ReactElement } from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CopyButton } from './CopyButton';
+import { ToastContainer } from './Toast';
+import { useToastStore } from '@/stores/toastStore';
+
+function renderWithToast(ui: ReactElement) {
+  return render(
+    <>
+      {ui}
+      <ToastContainer />
+    </>
+  );
+}
 
 describe('CopyButton', () => {
+  beforeEach(() => {
+    useToastStore.setState({ toasts: [] });
+  });
+
   it('renders default label', () => {
     render(<CopyButton text="hello" />);
     expect(screen.getByRole('button', { name: /复制/ })).toBeInTheDocument();
@@ -18,16 +34,28 @@ describe('CopyButton', () => {
     expect(screen.getByRole('button')).toBeDisabled();
   });
 
-  it('copies text on click', async () => {
+  it('copies text on click and shows success toast', async () => {
     const writeText = vi.mocked(navigator.clipboard.writeText);
     writeText.mockClear();
+    writeText.mockResolvedValue(undefined);
 
-    render(<CopyButton text="copy me" />);
+    renderWithToast(<CopyButton text="copy me" />);
     fireEvent.click(screen.getByRole('button', { name: /复制/ }));
 
     await waitFor(() => {
       expect(writeText).toHaveBeenCalledWith('copy me');
     });
     expect(await screen.findByRole('button', { name: /已复制/ })).toBeInTheDocument();
+    expect(await screen.findByText('复制成功')).toBeInTheDocument();
+  });
+
+  it('shows error toast when copy fails', async () => {
+    const writeText = vi.mocked(navigator.clipboard.writeText);
+    writeText.mockRejectedValue(new Error('denied'));
+
+    renderWithToast(<CopyButton text="copy me" />);
+    fireEvent.click(screen.getByRole('button', { name: /复制/ }));
+
+    expect(await screen.findByText('复制失败')).toBeInTheDocument();
   });
 });
