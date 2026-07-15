@@ -1,19 +1,19 @@
 import { useState, useCallback } from 'react';
+import { copyToClipboard } from '@/utils/copyToClipboard';
 
 export function useClipboard(timeout = 2000) {
   const [copied, setCopied] = useState(false);
 
   const copy = useCallback(
     async (text: string) => {
-      try {
-        await navigator.clipboard.writeText(text);
+      const ok = await copyToClipboard(text);
+      if (ok) {
         setCopied(true);
         setTimeout(() => setCopied(false), timeout);
-        return true;
-      } catch {
+      } else {
         setCopied(false);
-        return false;
       }
+      return ok;
     },
     [timeout]
   );

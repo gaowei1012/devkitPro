@@ -531,20 +531,25 @@ export async function generateAppIcon(
   const canvas = document.createElement('canvas');
   canvas.width = targetSize;
   canvas.height = targetSize;
-  const ctx = canvas.getContext('2d', { alpha: options.transparent ?? false });
+
+  const hasRoundedClip = !!(options.cornerRadius && options.cornerRadius > 0);
+  // 圆角图标四角保持透明，避免白底填充后出现白边/白角
+  const useAlpha = options.transparent ?? hasRoundedClip;
+  const ctx = canvas.getContext('2d', { alpha: useAlpha });
   if (!ctx) throw new Error('无法创建 Canvas 上下文');
 
-  if (options.backgroundColor) {
-    ctx.fillStyle = options.backgroundColor;
-    ctx.fillRect(0, 0, targetSize, targetSize);
-  }
-
-  const padding = options.padding ?? 0.1;
+  // 默认不留白；Android 自适应前景层另行传入安全区内边距
+  const padding = options.padding ?? 0;
   const drawSize = targetSize * (1 - padding * 2);
   const offset = targetSize * padding;
 
-  if (options.cornerRadius && options.cornerRadius > 0) {
-    applyRoundedClip(ctx, offset, drawSize, options.cornerRadius);
+  if (hasRoundedClip) {
+    applyRoundedClip(ctx, offset, drawSize, options.cornerRadius!);
+  }
+
+  if (options.backgroundColor) {
+    ctx.fillStyle = options.backgroundColor;
+    ctx.fillRect(offset, offset, drawSize, drawSize);
   }
 
   drawCoverImage(ctx, sourceImage, offset, drawSize);
@@ -584,12 +589,15 @@ export async function generateAdaptiveBackground(
   });
 }
 
+/** Android adaptive icon: content safe zone is center ~66% (≈18% margin each side) */
+const ADAPTIVE_FOREGROUND_PADDING = 0.18;
+
 export async function generateAdaptiveForeground(
   sourceImage: HTMLImageElement,
   targetSize: number
 ): Promise<Blob> {
   return generateAppIcon(sourceImage, targetSize, {
-    padding: 0.1,
+    padding: ADAPTIVE_FOREGROUND_PADDING,
     transparent: true,
   });
 }
@@ -728,7 +736,7 @@ export async function generateIconForDevice(
   return generateAppIcon(sourceImage, device.size, {
     cornerRadius,
     backgroundColor: config.backgroundColor,
-    padding: 0.1,
+    padding: 0,
     transparent: false,
   });
 }

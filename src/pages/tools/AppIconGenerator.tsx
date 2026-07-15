@@ -510,13 +510,13 @@ export default function AppIconGenerator() {
                 className="group relative overflow-hidden rounded-lg border border-gray-200 bg-gray-50 transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-muted"
               >
                 <div
-                  className="flex aspect-square items-center justify-center overflow-hidden p-3"
+                  className="flex aspect-square items-center justify-center overflow-hidden"
                   style={{ backgroundColor }}
                 >
                   <img
                     src={item.previewUrl}
                     alt={item.device.name}
-                    className="max-h-full max-w-full object-contain"
+                    className="h-full w-full object-cover"
                     style={{
                       borderRadius:
                         cornerRadius && item.device.platform === 'ios' ? '22%' : '0',

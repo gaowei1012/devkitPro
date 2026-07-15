@@ -1,12 +1,16 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useClipboard } from './useClipboard';
 
 describe('useClipboard', () => {
-  it('copies text and sets copied state', async () => {
-    const writeText = vi.fn().mockResolvedValue(undefined);
-    Object.assign(navigator, { clipboard: { writeText } });
+  beforeEach(() => {
+    Object.defineProperty(document, 'execCommand', {
+      configurable: true,
+      value: vi.fn().mockReturnValue(true),
+    });
+  });
 
+  it('copies text and sets copied state', async () => {
     const { result } = renderHook(() => useClipboard(100));
 
     expect(result.current.copied).toBe(false);
@@ -16,7 +20,6 @@ describe('useClipboard', () => {
       expect(success).toBe(true);
     });
 
-    expect(writeText).toHaveBeenCalledWith('test text');
     expect(result.current.copied).toBe(true);
 
     await waitFor(
@@ -27,7 +30,11 @@ describe('useClipboard', () => {
     );
   });
 
-  it('returns false when clipboard write fails', async () => {
+  it('returns false when copy fails', async () => {
+    Object.defineProperty(document, 'execCommand', {
+      configurable: true,
+      value: vi.fn().mockReturnValue(false),
+    });
     Object.assign(navigator, {
       clipboard: { writeText: vi.fn().mockRejectedValue(new Error('denied')) },
     });
