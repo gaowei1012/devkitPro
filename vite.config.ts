@@ -11,6 +11,7 @@ import { sitemapRoutes, SITE_URL } from './src/config/seoMeta';
 const isAnalyze = process.env.ANALYZE === 'true';
 
 export default defineConfig({
+  base: '/devkitPro/',
   plugins: [
     react({
       babel: {
