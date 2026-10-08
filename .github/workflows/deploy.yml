@@ -2,29 +2,44 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ "main" ]  # 当推送到 main 分支时触发
-  workflow_dispatch:      # 允许手动触发
+    branches:
+      - main
+      - feat/v1
+  workflow_dispatch:
 
 permissions:
   contents: read
   pages: write
   id-token: write
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Node
+
+      - name: Setup Node.js 18
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '18.17.0'
           cache: 'npm'
+
       - name: Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps
+
+      - name: Run TypeScript check
+        run: npx tsc --noEmit
+        continue-on-error: true
+
       - name: Build with Vite
         run: npm run build
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
